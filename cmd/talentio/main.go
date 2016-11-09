@@ -25,7 +25,7 @@ var config = struct {
 func flagParse() {
 	flag.Parse()
 
-	if *page < 1 {
+	if *page < 0 {
 		*page = 1
 	}
 
@@ -61,15 +61,37 @@ func run() int {
 
 	client := talentio.NewClient(c)
 
+	if *page == 0 {
+		count := 0
+		for i := 1; i <= 10; i++ {
+			list, resp, err := do(client, i)
+			if err != nil {
+				log.Printf("error: %v", err.Error())
+				return 1
+			}
+			count += len(list)
+			if resp.Total <= count {
+				return 0
+			}
+		}
+		log.Printf("too many candidates")
+		return 0
+	}
+
+	do(client, *page)
+	return 0
+}
+
+func do(client *talentio.Client, page int) ([]*talentio.Candidate, *talentio.Response, error) {
 	opt := talentio.CandidatesListOptions{
-		Page:   *page,
+		Page:   page,
 		Status: *status,
 		Sort:   talentio.SortRegisteredAtDescKey,
 	}
 	candidates, resp, err := client.Candidates.List(&opt)
 	if err != nil {
-		log.Printf("error: %v", err.Error())
-		return 1
+
+		return nil, nil, err
 	}
 
 	for _, candidate := range candidates {
@@ -78,7 +100,7 @@ func run() int {
 	}
 	fmt.Printf("Total=%d, Remaining=%d Reset=%d\n", resp.Total, resp.Remaining, resp.Reset)
 
-	return 0
+	return candidates, resp, nil
 }
 
 func main() {
