@@ -16,20 +16,6 @@ type CandidatesListOptions struct {
 	Sort   string `url:"sort"`
 }
 
-const (
-	StatusOngoing      = "ongoing"
-	StatusReject       = "reject"
-	StatusFail         = "fail"
-	StatusPass         = "pass"
-	StatusPoolActive   = "poolActive"
-	StatusPoolInactive = "poolInactive"
-)
-
-const (
-	RegisteredAtAscKey  = "registeredAt"
-	RegisteredAtDescKey = "-registeredAt"
-)
-
 type (
 	// A Candidate is.
 	Candidate struct {
@@ -42,7 +28,7 @@ type (
 		Status           string      `json:"status"`
 		ChannelType      string      `json:"channelType"`
 		Priority         int         `json:"priority"`
-		Stage            []Stage     `json:"stages"`
+		Stages           []Stage     `json:"stages"`
 		ReferrerEmployee Employee    `json:"referrerEmployee,omitempty"`
 		AgentCompany     Company     `json:"agentCompany,omitempty"`
 		Requisition      Requisition `json:"requisition"`
@@ -114,7 +100,6 @@ func (s CandidatesService) List(opt *CandidatesListOptions) ([]*Candidate, *http
 	if err != nil {
 		return nil, nil, err
 	}
-	fmt.Println(req.URL.String())
 
 	candidates := new([]*Candidate)
 	resp, err := s.client.Do(req, candidates)
