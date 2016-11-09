@@ -107,9 +107,7 @@ func (c *Client) NewRequest(method, urlStr string, body io.Reader) (*http.Reques
 
 // Do sends an API request and returns the API response. The API response is
 // JSON decoded and stored in the value pointed to by v, or returned as an
-// error if an API error has occurred. If v implements the io.Writer
-// interface, the raw response body will be written to v, without attempting to
-// first decode it.
+// error if an API error has occurred.
 func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	resp, err := c.config.httpClient.Do(req)
 	if err != nil {
@@ -123,13 +121,11 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	}()
 
 	if v != nil {
-		if w, ok := v.(io.Writer); ok {
-			io.Copy(w, resp.Body)
-		} else {
-			err = json.NewDecoder(resp.Body).Decode(v)
-			if err == io.EOF {
-				err = nil // ignore EOF errors caused by empty response body
-			}
+		err = json.NewDecoder(resp.Body).Decode(v)
+		switch err {
+		case io.EOF:
+			// ignore EOF errors caused by empty response body
+			err = nil
 		}
 	}
 

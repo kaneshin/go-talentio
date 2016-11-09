@@ -6,10 +6,11 @@ import (
 	"time"
 )
 
-// A CandidatesService is.
+// CandidatesService handles communication with the candidates related
+// methods of the Talentio API.
 type CandidatesService service
 
-// A CandidatesListOptions is.
+// CandidatesListOptions represents an order to a related resource.
 type CandidatesListOptions struct {
 	Page   int    `url:"page"`
 	Status string `url:"status"`
@@ -17,7 +18,7 @@ type CandidatesListOptions struct {
 }
 
 type (
-	// A Candidate is.
+	// Candidate represents candidate resources.
 	Candidate struct {
 		ID               int         `json:"id"`
 		FirstName        string      `json:"firstName"`
@@ -35,7 +36,7 @@ type (
 		Tags             []Tag       `json:"tags"`
 	}
 
-	// An Employee is.
+	// Employee represents employee resources.
 	Employee struct {
 		ID        int    `json:"id"`
 		FirstName string `json:"firstName"`
@@ -44,32 +45,32 @@ type (
 		Active    bool   `json:"active"`
 	}
 
-	// A Company is.
+	// Company represents company resources.
 	Company struct {
 		ID   int    `json:"id"`
 		Name string `json:"name"`
 	}
 
-	// A Tag is.
+	// Tag represents tag resources.
 	Tag struct {
 		ID   int    `json:"id"`
 		Name string `json:"name"`
 	}
 
-	// A Requisition is.
+	// Requisition represents requisition resources.
 	Requisition struct {
 		ID     int    `json:"id"`
 		Name   string `json:"name"`
 		Active bool   `json:"active"`
 	}
 
-	// A Item is.
+	// Item represents item resources.
 	Item struct {
 		Name string `json:"name"`
 		Type string `json:"type"`
 	}
 
-	// A Stage is.
+	// Stage represents stage resources.
 	Stage struct {
 		ID          int          `json:"id"`
 		Type        string       `json:"type"`
@@ -80,7 +81,7 @@ type (
 		Evaluations []Evaluation `json:"evaluations,omitempty"`
 	}
 
-	// An Evaluation is.
+	// Evaluation represents evaluation resources.
 	Evaluation struct {
 		ID       int      `json:"id"`
 		Finished bool     `json:"finished"`
@@ -89,7 +90,7 @@ type (
 	}
 )
 
-// List returns a pointer of Candidates.
+// List returns a slice of Candidate.
 func (s CandidatesService) List(opt *CandidatesListOptions) ([]*Candidate, *http.Response, error) {
 	u, err := addOptions("candidates", opt)
 	if err != nil {
@@ -110,7 +111,7 @@ func (s CandidatesService) List(opt *CandidatesListOptions) ([]*Candidate, *http
 	return *candidates, resp, err
 }
 
-// Get returns a pointer of Candidate.
+// Get returns a new Candidate.
 func (s CandidatesService) Get(id int) (*Candidate, *http.Response, error) {
 	req, err := s.client.NewRequest("GET", fmt.Sprintf("candidates/%d", id), nil)
 	if err != nil {
