@@ -62,11 +62,9 @@ func run() int {
 	client := talentio.NewClient(c)
 
 	opt := talentio.CandidatesListOptions{
-		Page: *page,
-		// FIXME:
-		// It's not working. API might be broken.
-		// Status: *status,
-		Sort: talentio.SortRegisteredAtDescKey,
+		Page:   *page,
+		Status: *status,
+		Sort:   talentio.SortRegisteredAtDescKey,
 	}
 	candidates, _, err := client.Candidates.List(&opt)
 	if err != nil {
@@ -75,13 +73,8 @@ func run() int {
 	}
 
 	for _, candidate := range candidates {
-		if *status != candidate.Status {
-			// FIXME:
-			// The because of opt.Status is not working.
-			continue
-		}
 
-		fmt.Printf("ID=%d: %v %v\n", candidate.ID, candidate.FirstName, candidate.LastName)
+		fmt.Printf("ID=%d: %v %v (%v)\n", candidate.ID, candidate.FirstName, candidate.LastName, candidate.Status)
 	}
 
 	return 0
