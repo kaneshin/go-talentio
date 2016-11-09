@@ -3,19 +3,28 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
-	"github.com/kaneshin/go-talentio/cmd/internal"
+	"github.com/BurntSushi/toml"
 	"github.com/kaneshin/go-talentio/talentio"
 )
 
 var (
-	page   = flag.Int("page", 1, "")
-	status = flag.String("status", "ongoing", "")
+	page       = flag.Int("page", 1, "")
+	status     = flag.String("status", "ongoing", "")
+	configPath = flag.String("config", "$HOME/.talentio.tml", "")
 )
 
-func validate() {
+// config represents a configuration of commands.
+var config = struct {
+	AccessToken string `toml:"access_token"`
+}{}
+
+func flagParse() {
+	flag.Parse()
+
 	if *page < 1 {
 		*page = 1
 	}
@@ -30,26 +39,28 @@ func validate() {
 	}
 	for _, s := range statuses {
 		if *status == s {
-			goto done
+			goto STATUS_OK
 		}
 	}
 	*status = talentio.StatusOngoing
+STATUS_OK:
 
-done:
+	fp := os.ExpandEnv(*configPath)
+	_, _ = toml.DecodeFile(fp, &config)
 }
 
-func main() {
-	internal.ParseFlag()
-	validate()
+func run() int {
+	flagParse()
 
 	c := talentio.NewConfig().WithHTTPClient(http.DefaultClient)
-	str := internal.Config.AccessToken
+	str := config.AccessToken
 	if str == "" {
 		str = os.Getenv("TALENTIO_ACCESS_TOKEN")
 	}
 	c.WithAccessToken(str)
 
 	client := talentio.NewClient(c)
+
 	opt := talentio.CandidatesListOptions{
 		Page: *page,
 		// FIXME:
@@ -57,10 +68,10 @@ func main() {
 		// Status: *status,
 		Sort: talentio.SortRegisteredAtDescKey,
 	}
-
 	candidates, _, err := client.Candidates.List(&opt)
 	if err != nil {
-		panic(err)
+		log.Printf("error: %v", err.Error())
+		return 1
 	}
 
 	for _, candidate := range candidates {
@@ -72,4 +83,10 @@ func main() {
 
 		fmt.Printf("ID=%d: %v %v\n", candidate.ID, candidate.FirstName, candidate.LastName)
 	}
+
+	return 0
+}
+
+func main() {
+	os.Exit(run())
 }
