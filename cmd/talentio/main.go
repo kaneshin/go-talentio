@@ -66,7 +66,7 @@ func run() int {
 		Status: *status,
 		Sort:   talentio.SortRegisteredAtDescKey,
 	}
-	candidates, _, err := client.Candidates.List(&opt)
+	candidates, resp, err := client.Candidates.List(&opt)
 	if err != nil {
 		log.Printf("error: %v", err.Error())
 		return 1
@@ -76,6 +76,7 @@ func run() int {
 
 		fmt.Printf("ID=%d: %v %v (%v)\n", candidate.ID, candidate.FirstName, candidate.LastName, candidate.Status)
 	}
+	fmt.Printf("Total=%d, Remaining=%d Reset=%d\n", resp.Total, resp.Remaining, resp.Reset)
 
 	return 0
 }

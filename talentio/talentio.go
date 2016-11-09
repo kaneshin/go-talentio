@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"path"
 	"reflect"
+	"strconv"
 
 	"github.com/google/go-querystring/query"
 )
@@ -35,6 +36,16 @@ type Client struct {
 
 type service struct {
 	client *Client
+}
+
+// Response is a Talentio API response. This wraps the standard http.Response
+// returned from Talentio and provides convenient access to things.
+type Response struct {
+	*http.Response
+
+	Remaining int
+	Reset     int
+	Total     int
 }
 
 // NewClient returns a new Talentio client. If a nil Config is
@@ -108,7 +119,7 @@ func (c *Client) NewRequest(method, urlStr string, body io.Reader) (*http.Reques
 // Do sends an API request and returns the API response. The API response is
 // JSON decoded and stored in the value pointed to by v, or returned as an
 // error if an API error has occurred.
-func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 	resp, err := c.config.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -120,6 +131,8 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		resp.Body.Close()
 	}()
 
+	response := newResponse(resp)
+
 	if v != nil {
 		err = json.NewDecoder(resp.Body).Decode(v)
 		switch err {
@@ -129,5 +142,22 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		}
 	}
 
-	return resp, err
+	return response, err
+}
+
+// newResponse creates a new Response for the provided http.Response.
+func newResponse(r *http.Response) *Response {
+	resp := &Response{
+		Response: r,
+	}
+	if v := r.Header.Get(headerXRemaining); v != "" {
+		resp.Remaining, _ = strconv.Atoi(v)
+	}
+	if v := r.Header.Get(headerXReset); v != "" {
+		resp.Reset, _ = strconv.Atoi(v)
+	}
+	if v := r.Header.Get(headerXTotal); v != "" {
+		resp.Total, _ = strconv.Atoi(v)
+	}
+	return resp
 }

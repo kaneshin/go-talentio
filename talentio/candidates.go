@@ -2,7 +2,6 @@ package talentio
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 )
 
@@ -91,7 +90,7 @@ type (
 )
 
 // List returns a slice of Candidate.
-func (s CandidatesService) List(opt *CandidatesListOptions) ([]*Candidate, *http.Response, error) {
+func (s CandidatesService) List(opt *CandidatesListOptions) ([]*Candidate, *Response, error) {
 	u, err := addOptions("candidates", opt)
 	if err != nil {
 		return nil, nil, err
@@ -112,7 +111,7 @@ func (s CandidatesService) List(opt *CandidatesListOptions) ([]*Candidate, *http
 }
 
 // Get returns a new Candidate.
-func (s CandidatesService) Get(id int) (*Candidate, *http.Response, error) {
+func (s CandidatesService) Get(id int) (*Candidate, *Response, error) {
 	req, err := s.client.NewRequest("GET", fmt.Sprintf("candidates/%d", id), nil)
 	if err != nil {
 		return nil, nil, err
