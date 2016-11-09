@@ -55,7 +55,7 @@ func main() {
 		// FIXME:
 		// It's not working. API might be broken.
 		// Status: *status,
-		Sort: talentio.RegisteredAtDescKey,
+		Sort: talentio.SortRegisteredAtDescKey,
 	}
 
 	candidates, _, err := client.Candidates.List(&opt)
