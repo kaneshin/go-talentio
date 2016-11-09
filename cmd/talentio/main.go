@@ -2,48 +2,74 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 
-	"github.com/k0kubun/pp"
 	"github.com/kaneshin/go-talentio/cmd/internal"
 	"github.com/kaneshin/go-talentio/talentio"
 )
 
 var (
-	color = flag.String("color", "", "")
-	image = flag.String("image", "", "")
-
-	channel  = flag.String("channel", "", "")
-	username = flag.String("username", "", "")
-	emoji    = flag.String("emoji", "", "")
-
-	code = flag.Bool("code", false, "")
+	page   = flag.Int("page", 1, "")
+	status = flag.String("status", "ongoing", "")
 )
+
+func validate() {
+	if *page < 1 {
+		*page = 1
+	}
+
+	statuses := [6]string{
+		talentio.StatusOngoing,
+		talentio.StatusReject,
+		talentio.StatusFail,
+		talentio.StatusPass,
+		talentio.StatusPoolActive,
+		talentio.StatusPoolInactive,
+	}
+	for _, s := range statuses {
+		if *status == s {
+			goto done
+		}
+	}
+	*status = talentio.StatusOngoing
+
+done:
+}
 
 func main() {
 	internal.ParseFlag()
+	validate()
 
 	c := talentio.NewConfig().WithHTTPClient(http.DefaultClient)
-
-	{
-		var str string
-		if str = internal.Config.AccessToken; str == "" {
-			str = os.Getenv("TALENTIO_ACCESS_TOKEN")
-		}
-		c.WithAccessToken(str)
+	str := internal.Config.AccessToken
+	if str == "" {
+		str = os.Getenv("TALENTIO_ACCESS_TOKEN")
 	}
+	c.WithAccessToken(str)
 
 	client := talentio.NewClient(c)
-
 	opt := talentio.CandidatesListOptions{
-		Page:   1,
-		Status: talentio.StatusOngoing,
-		Sort:   talentio.RegisteredAtDescKey,
+		Page: *page,
+		// FIXME:
+		// It's not working. API might be broken.
+		// Status: *status,
+		Sort: talentio.RegisteredAtDescKey,
 	}
-	v, _, err := client.Candidates.List(&opt)
+
+	candidates, _, err := client.Candidates.List(&opt)
 	if err != nil {
 		panic(err)
 	}
-	pp.Println(v)
+
+	for _, candidate := range candidates {
+		if *status != candidate.Status {
+			// FIXME:
+			// The because of opt.Status is not working.
+			continue
+		}
+
+		fmt.Printf("ID=%d: %v %v\n", candidate.ID, candidate.FirstName, candidate.LastName)
+	}
 }
