@@ -1,6 +1,10 @@
 package talentioutil
 
-import "github.com/kaneshin/go-talentio/talentio"
+import (
+	"sync"
+
+	"github.com/kaneshin/go-talentio/talentio"
+)
 
 type (
 	_Candidates struct{}
@@ -45,6 +49,37 @@ func (c _Candidates) List(client *talentio.Client, opt *CandidatesListOptions) (
 	}
 
 	return candidates, nil
+}
+
+func (c _Candidates) ApplyDetails(client *talentio.Client, list []*talentio.Candidate) error {
+
+	var (
+		e    error
+		errc = make(chan error)
+		wg   sync.WaitGroup
+	)
+	for _, c := range list {
+		wg.Add(1)
+		go func(c *talentio.Candidate) {
+			defer wg.Done()
+
+			c, _, err := client.Candidates.Get(c.ID)
+			if err != nil {
+				errc <- err
+			}
+		}(c)
+	}
+	go func() {
+		for {
+			select {
+			case err := <-errc:
+				e = err
+			}
+		}
+	}()
+
+	wg.Wait()
+	return e
 }
 
 func (c _Candidates) Map(list []*talentio.Candidate, f func(*talentio.Candidate) bool) []*talentio.Candidate {

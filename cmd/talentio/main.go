@@ -8,7 +8,14 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
+	"github.com/k0kubun/pp"
 	"github.com/kaneshin/go-talentio/talentio"
+	"github.com/kaneshin/go-talentio/talentio/talentioutil"
+)
+
+const (
+	success = iota
+	failure
 )
 
 var (
@@ -61,46 +68,36 @@ func run() int {
 
 	client := talentio.NewClient(c)
 
-	if *page == 0 {
-		count := 0
-		for i := 1; i <= 10; i++ {
-			list, resp, err := do(client, i)
-			if err != nil {
-				log.Printf("error: %v", err.Error())
-				return 1
-			}
-			count += len(list)
-			if resp.Total <= count {
-				return 0
-			}
-		}
-		log.Printf("too many candidates")
+	cands, err := talentioutil.Candidates.List(client, &talentioutil.CandidatesListOptions{
+		MaxPage: 10,
+		Status:  talentio.StatusOngoing,
+		Sort:    talentio.SortRegisteredAtDescKey,
+	})
+
+	if err != nil {
+		log.Println(err)
+		return failure
+	}
+
+	for _, candidate := range cands {
+		fmt.Printf("ID=%d, RegisteredAt=%v\n", candidate.ID, candidate.RegisteredAt)
+	}
+
+	if len(cands) == 0 {
 		return 0
 	}
 
-	do(client, *page)
+	// Show details of candidates.
+	if err := talentioutil.Candidates.ApplyDetails(client, cands); err != nil {
+		log.Println(err)
+		return failure
+	}
+
+	for _, cand := range cands {
+		pp.Println(cand)
+	}
+
 	return 0
-}
-
-func do(client *talentio.Client, page int) ([]*talentio.Candidate, *talentio.Response, error) {
-	opt := talentio.CandidatesListOptions{
-		Page:   page,
-		Status: *status,
-		Sort:   talentio.SortRegisteredAtDescKey,
-	}
-	candidates, resp, err := client.Candidates.List(&opt)
-	if err != nil {
-
-		return nil, nil, err
-	}
-
-	for _, candidate := range candidates {
-
-		fmt.Printf("ID=%d: %v %v (%v)\n", candidate.ID, candidate.FirstName, candidate.LastName, candidate.Status)
-	}
-	fmt.Printf("Total=%d, Remaining=%d Reset=%d\n", resp.Total, resp.Remaining, resp.Reset)
-
-	return candidates, resp, nil
 }
 
 func main() {
