@@ -88,7 +88,7 @@ func run() int {
 	}
 
 	// Show details of candidates.
-	if err := talentioutil.Candidates.ApplyDetails(client, cands); err != nil {
+	if err = talentioutil.Candidates.ApplyDetails(client, cands); err != nil {
 		log.Println(err)
 		return failure
 	}

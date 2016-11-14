@@ -58,16 +58,20 @@ func (c _Candidates) ApplyDetails(client *talentio.Client, list []*talentio.Cand
 		errc = make(chan error)
 		wg   sync.WaitGroup
 	)
-	for _, c := range list {
+	tmp := list
+	for i, c := range tmp {
 		wg.Add(1)
-		go func(c *talentio.Candidate) {
+		go func(i int, c *talentio.Candidate) {
 			defer wg.Done()
 
-			c, _, err := client.Candidates.Get(c.ID)
+			var err error
+			c, _, err = client.Candidates.Get(c.ID)
 			if err != nil {
 				errc <- err
+				return
 			}
-		}(c)
+			list[i] = c
+		}(i, c)
 	}
 	go func() {
 		for {
