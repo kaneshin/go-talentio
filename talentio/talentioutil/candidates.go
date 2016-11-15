@@ -54,9 +54,8 @@ func (c _Candidates) List(client *talentio.Client, opt *CandidatesListOptions) (
 func (c _Candidates) ApplyDetails(client *talentio.Client, list []*talentio.Candidate) error {
 
 	var (
-		e    error
-		errc = make(chan error)
-		wg   sync.WaitGroup
+		e  error
+		wg sync.WaitGroup
 	)
 	tmp := list
 	for i, c := range tmp {
@@ -67,20 +66,12 @@ func (c _Candidates) ApplyDetails(client *talentio.Client, list []*talentio.Cand
 			var err error
 			c, _, err = client.Candidates.Get(c.ID)
 			if err != nil {
-				errc <- err
+				e = err
 				return
 			}
 			list[i] = c
 		}(i, c)
 	}
-	go func() {
-		for {
-			select {
-			case err := <-errc:
-				e = err
-			}
-		}
-	}()
 
 	wg.Wait()
 	return e
