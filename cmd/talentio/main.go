@@ -21,7 +21,7 @@ const (
 var (
 	page       = flag.Int("page", 1, "")
 	status     = flag.String("status", "ongoing", "")
-	configPath = flag.String("config", "$HOME/.talentio.tml", "")
+	configPath = flag.String("config", "$HOME/.config/talentio.tml", "")
 )
 
 // config represents a configuration of commands.

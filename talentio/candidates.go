@@ -24,10 +24,12 @@ type (
 		LastName         string      `json:"lastName"`
 		Email            string      `json:"email"`
 		Description      string      `json:"description"`
+		FixedAt          time.Time   `json:"fixedAt"`
 		RegisteredAt     time.Time   `json:"registeredAt"`
 		Status           string      `json:"status"`
-		ChannelType      string      `json:"channelType"`
 		Priority         int         `json:"priority"`
+		ChannelType      string      `json:"channelType"`
+		ChannelName      string      `json:"channelName"`
 		Stages           []Stage     `json:"stages"`
 		ReferrerEmployee Employee    `json:"referrerEmployee,omitempty"`
 		AgentCompany     Company     `json:"agentCompany,omitempty"`
@@ -67,15 +69,17 @@ type (
 	Item struct {
 		Name string `json:"name"`
 		Type string `json:"type"`
+		// Input   bool   `json:"input"`
+		Comment string `json:"comment"`
 	}
 
 	// Stage represents stage resources.
 	Stage struct {
-		ID          int          `json:"id"`
-		Type        string       `json:"type"`
-		Step        int          `json:"step"`
-		Status      string       `json:"status"`
-		ScheduledAt time.Time    `json:"scheduledAt,omitempty"`
+		ID     int    `json:"id"`
+		Type   string `json:"type"`
+		Step   int    `json:"step"`
+		Status string `json:"status"`
+		// ScheduledAt time.Time    `json:"scheduledAt,omitempty"`
 		Description string       `json:"description,omitempty"`
 		Evaluations []Evaluation `json:"evaluations,omitempty"`
 	}

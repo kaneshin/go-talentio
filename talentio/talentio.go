@@ -11,10 +11,11 @@ import (
 	"strconv"
 
 	"github.com/google/go-querystring/query"
+	"github.com/pkg/errors"
 )
 
 const (
-	libraryVersion = "1.0"
+	libraryVersion = "1.1"
 	apiVersion     = "v1"
 	defaultBaseURL = "https://talentio.com/api/"
 	userAgent      = "talentio/" + libraryVersion
@@ -131,8 +132,15 @@ func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
 		resp.Body.Close()
 	}()
 
-	response := newResponse(resp)
+	if resp.StatusCode >= 400 {
+		b, err := ioutil.ReadAll(resp.Body)
+		if err == nil {
+			err = errors.New(string(b))
+		}
+		return nil, err
+	}
 
+	response := newResponse(resp)
 	if v != nil {
 		err = json.NewDecoder(resp.Body).Decode(v)
 		switch err {

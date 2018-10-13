@@ -9,6 +9,8 @@ github.com/k0kubun/pp v0.0.0-20160602144626-f5dce6ed0ccf/go.mod h1:GWse8YhT0p8pT
 github.com/mattn/go-colorable v0.0.0-20161103160040-d22884950486 h1:7z6ReZnJtmX+GS1uRWD459ZGAJxOXgxtRlNyIVdHqoQ=
 github.com/mattn/go-colorable v0.0.0-20161103160040-d22884950486/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-isatty v0.0.0-20160806122752-66b8e73f3f5c/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
+github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=
+github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v0.0.0-20160110105554-792786c7400a h1:v1bhu6oHvcnZjkPXhKqrHv4SkiCmaSM03i7HTkVFDKw=
 github.com/pmezard/go-difflib v0.0.0-20160110105554-792786c7400a/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v0.0.0-20160925220609-976c720a22c8 h1:8wC8CPnIozQ1PGwYrFIxpYp10uhkEYhuTnoEJWrVj84=
