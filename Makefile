@@ -5,21 +5,14 @@ LINTIGNOREDEPS='vendor/.+\.go'
 VETIGNOREDEPS='vendor/.+\.go'
 CYCLOIGNOREDEPS='vendor/.+\.go'
 TARGET_ONLY_PKGS=$(shell go list ./... 2> /dev/null | grep -v "/vendor/")
-HAVE_GOVENDOR:=$(shell which govendor)
 HAVE_GOLINT:=$(shell which golint)
 HAVE_GOCYCLO:=$(shell which gocyclo)
 HAVE_GOCOV:=$(shell which gocov)
 
 .PHONY:
 
-init: install-deps
-
-build: install-deps
-
-install: install-deps
-
-unit: lint vet cyclo build test
-unit-report: lint vet cyclo build test-report
+unit: lint vet cyclo test
+unit-report: lint vet cyclo test-report
 
 lint: golint
 	@echo "go lint"
@@ -52,10 +45,6 @@ test-report:
 		go test -coverprofile=profile.out -covermode=atomic $$d || exit 1; \
 		[ -f profile.out ] && cat profile.out >> coverage.txt && rm profile.out || true; done
 
-install-deps: govendor
-	@echo "Installing all dependencies"
-	@govendor sync
-
 golint:
 ifndef HAVE_GOLINT
 	@echo "Installing linter"
@@ -72,10 +61,4 @@ gocov:
 ifndef HAVE_GOCOV
 	@echo "Installing gocov"
 	@go get -u github.com/axw/gocov/gocov
-endif
-
-govendor:
-ifndef HAVE_GOVENDOR
-	@echo "Installing govendor"
-	@go get -u github.com/kardianos/govendor
 endif
