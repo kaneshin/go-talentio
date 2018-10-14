@@ -75,11 +75,11 @@ type (
 
 	// Stage represents stage resources.
 	Stage struct {
-		ID     int    `json:"id"`
-		Type   string `json:"type"`
-		Step   int    `json:"step"`
-		Status string `json:"status"`
-		// ScheduledAt time.Time    `json:"scheduledAt,omitempty"`
+		ID          int          `json:"id"`
+		Type        string       `json:"type"`
+		Step        int          `json:"step"`
+		Status      string       `json:"status"`
+		ScheduledAt interface{}  `json:"scheduledAt,omitempty"` // boolean or time.Time (ambiguous)
 		Description string       `json:"description,omitempty"`
 		Evaluations []Evaluation `json:"evaluations,omitempty"`
 	}
