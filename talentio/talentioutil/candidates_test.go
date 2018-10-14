@@ -85,7 +85,7 @@ var (
 	stageOngoingInterview = talentio.Stage{Type: "interview", Status: "ongoing"}
 )
 
-func TestCandidatesMap(t *testing.T) {
+func TestCandidatesFilter(t *testing.T) {
 
 	t.Run("NoResume", func(t *testing.T) {
 		var expected []*talentio.Candidate

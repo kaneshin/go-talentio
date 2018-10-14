@@ -59,6 +59,8 @@ func (c _Candidates) ApplyDetails(client *talentio.Client, list []*talentio.Cand
 	)
 	tmp := list
 	for i, c := range tmp {
+		i := i
+		c := c
 		wg.Add(1)
 		go func(i int, c *talentio.Candidate) {
 			defer wg.Done()
@@ -77,7 +79,7 @@ func (c _Candidates) ApplyDetails(client *talentio.Client, list []*talentio.Cand
 	return e
 }
 
-func (c _Candidates) Map(list []*talentio.Candidate, f func(*talentio.Candidate) bool) []*talentio.Candidate {
+func (c _Candidates) Filter(list []*talentio.Candidate, f func(*talentio.Candidate) bool) []*talentio.Candidate {
 
 	var candidates []*talentio.Candidate
 	for _, v := range list {
@@ -93,7 +95,7 @@ func (c _Candidates) Map(list []*talentio.Candidate, f func(*talentio.Candidate)
 // NoResume returns new candidates.
 func (c _Candidates) NoResume(list []*talentio.Candidate) []*talentio.Candidate {
 
-	return c.Map(list, func(c *talentio.Candidate) bool {
+	return c.Filter(list, func(c *talentio.Candidate) bool {
 
 		return len(c.Stages) == 0
 	})
@@ -102,7 +104,7 @@ func (c _Candidates) NoResume(list []*talentio.Candidate) []*talentio.Candidate 
 // OngoingResume returns candidates' status is ongoing resume.
 func (c _Candidates) OngoingResume(list []*talentio.Candidate) []*talentio.Candidate {
 
-	return c.Map(list, func(c *talentio.Candidate) bool {
+	return c.Filter(list, func(c *talentio.Candidate) bool {
 
 		for _, s := range c.Stages {
 			if s.Type != talentio.TypeResume {
@@ -121,7 +123,7 @@ func (c _Candidates) OngoingResume(list []*talentio.Candidate) []*talentio.Candi
 // PassResume returns candidates' status is pass of resume.
 func (c _Candidates) PassResume(list []*talentio.Candidate) []*talentio.Candidate {
 
-	return c.Map(list, func(c *talentio.Candidate) bool {
+	return c.Filter(list, func(c *talentio.Candidate) bool {
 
 		if len(c.Stages) == 0 {
 			return false
@@ -144,7 +146,7 @@ func (c _Candidates) PassResume(list []*talentio.Candidate) []*talentio.Candidat
 // OngoingInterview returns candidates' status is ongoing of interview.
 func (c _Candidates) OngoingInterview(list []*talentio.Candidate) []*talentio.Candidate {
 
-	return c.Map(list, func(c *talentio.Candidate) bool {
+	return c.Filter(list, func(c *talentio.Candidate) bool {
 
 		for _, s := range c.Stages {
 			if s.Type != talentio.TypeInterview {
@@ -163,7 +165,7 @@ func (c _Candidates) OngoingInterview(list []*talentio.Candidate) []*talentio.Ca
 // PassInterview returns candidates' status is pass of interview.
 func (c _Candidates) PassInterview(list []*talentio.Candidate) []*talentio.Candidate {
 
-	return c.Map(list, func(c *talentio.Candidate) bool {
+	return c.Filter(list, func(c *talentio.Candidate) bool {
 
 		for _, s := range c.Stages {
 			if s.Status != talentio.StatusPass {
